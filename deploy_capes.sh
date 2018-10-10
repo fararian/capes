@@ -37,7 +37,7 @@ echo "Create your CAPES Landing Page passphrase for the account \"operator\" and
 read -s capespassphrase
 
 # Set your IP address as a variable. This is for instructions below.
-IP="$(hostname -I | sed -e 's/[[:space:]]*$//')"
+hostname="$(hostname -i | sed -e 's/[[:space:]]*$//')"
 
 ################################
 ######## Configure NTP #########
@@ -426,7 +426,7 @@ sudo bash -c 'cat >> /etc/thehive/application.conf <<EOF
 play.modules.enabled += connectors.cortex.CortexConnector
 cortex {
   "CORTEX-SERVER-ID" {
-  url = "http://`hostname -I | sed -e 's/[[:space:]]*$//'`:9001"
+  url = "http://`hostname -i | sed -e 's/[[:space:]]*$//'`:9001"
   key = "Cortex-API-key-see-post-installation-instructions"
   }
 }
@@ -445,7 +445,7 @@ sudo sed -i '43 a \\tauth_basic "CAPES Login";' /etc/nginx/nginx.conf
 sudo sed -i '44 a \\tauth_basic_user_file /etc/nginx/.htpasswd;' /etc/nginx/nginx.conf
 
 # Update the landing page index file
-sed -i "s/your-ip/$IP/" landing_page/index.html
+sed -i "s/your-ip/$ip/" landing_page/index.html
 
 # Move landing page framework into Nginx's working directory
 sudo cp -r landing_page/* /usr/share/nginx/html/
@@ -590,4 +590,4 @@ echo "The HackMD passphrase for the MariaDB database and the service administrat
 echo "The Mumble SuperUser passphrase is: "$mumblepassphrase
 echo "The CAPES landing passphrase for the account \"operator\" is: "$capespassphrase
 echo "Please see the "Build, Operate, Maintain" documentation for the post-installation steps."
-echo "The CAPES landing page has been successfully deployed. Browse to http://$HOSTNAME (or http://$IP if you don't have DNS set up) to begin using the services."
+echo "The CAPES landing page has been successfully deployed. Browse to http://$HOSTNAME (or http://$ip if you don't have DNS set up) to begin using the services."
