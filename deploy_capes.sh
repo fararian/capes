@@ -37,7 +37,7 @@ echo "Create your CAPES Landing Page passphrase for the account \"operator\" and
 read -s capespassphrase
 
 # Set your IP address as a variable. This is for instructions below.
-hostname="$(hostname -i | sed -e 's/[[:space:]]*$//')"
+IP="$(hostname -i | sed -e 's/[[:space:]]*$//')"
 
 ################################
 ######## Configure NTP #########
@@ -426,7 +426,7 @@ sudo bash -c 'cat >> /etc/thehive/application.conf <<EOF
 play.modules.enabled += connectors.cortex.CortexConnector
 cortex {
   "CORTEX-SERVER-ID" {
-  url = "http://`hostname -i | sed -e 's/[[:space:]]*$//'`:9001"
+  url = "http://`hostname -I | sed -e 's/[[:space:]]*$//'`:9001"
   key = "Cortex-API-key-see-post-installation-instructions"
   }
 }
@@ -445,7 +445,7 @@ sudo sed -i '43 a \\tauth_basic "CAPES Login";' /etc/nginx/nginx.conf
 sudo sed -i '44 a \\tauth_basic_user_file /etc/nginx/.htpasswd;' /etc/nginx/nginx.conf
 
 # Update the landing page index file
-sed -i "s/your-ip/$ip/" landing_page/index.html
+sed -i "s/your-ip/$IP/" landing_page/index.html
 
 # Move landing page framework into Nginx's working directory
 sudo cp -r landing_page/* /usr/share/nginx/html/
