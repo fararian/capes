@@ -37,7 +37,7 @@ echo "Create your CAPES Landing Page passphrase for the account \"operator\" and
 read -s capespassphrase
 
 # Set your IP address as a variable. This is for instructions below.
-IP="$(hostname -i | sed -e 's/[[:space:]]*$//')"
+IP="$(hostname -i)"
 
 ################################
 ######## Configure NTP #########
@@ -590,4 +590,4 @@ echo "The HackMD passphrase for the MariaDB database and the service administrat
 echo "The Mumble SuperUser passphrase is: "$mumblepassphrase
 echo "The CAPES landing passphrase for the account \"operator\" is: "$capespassphrase
 echo "Please see the "Build, Operate, Maintain" documentation for the post-installation steps."
-echo "The CAPES landing page has been successfully deployed. Browse to http://$HOSTNAME (or http://$ip if you don't have DNS set up) to begin using the services."
+echo "The CAPES landing page has been successfully deployed. Browse to http://$HOSTNAME (or http://$IP if you don't have DNS set up) to begin using the services."
