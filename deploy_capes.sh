@@ -36,6 +36,10 @@ mumblepassphrase=$(pwgen 15 1)
 echo "Create your CAPES Landing Page passphrase for the account \"operator\" and press [Enter]."
 capespassphrase=$(pwgen 15 1)
 
+# Creat your mariaDB root password
+echo "Creating your mariaDB password"
+mariaDBpw=$(pwgen 15 1)
+
 # Set your mailinabox domain
 mailinaboxdomain=$1
 
@@ -185,7 +189,7 @@ EOF'
 sudo yum install epel-release mariadb-server firewalld -y
 
 # Configure MariaDB
-mysql_secure_installation --use-default
+sudo bash ./mysql_secure.sh '$mariaDBpw'
 sudo systemctl start mariadb.service
 mysql -u root -e "CREATE DATABASE mattermost;"
 mysql -u root -e "GRANT ALL PRIVILEGES ON mattermost.* TO 'mattermost'@'localhost' IDENTIFIED BY '$mattermostpassphrase';"
