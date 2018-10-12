@@ -492,9 +492,9 @@ sudo yum install -y https://artifacts.elastic.co/downloads/beats/filebeat/filebe
 sudo cp beats/filebeat.yml /etc/filebeat/filebeat.yml
 sudo /usr/share/elasticsearch/bin/elasticsearch-plugin install ingest-user-agent
 
-# Elevate permissions for Java Runtime to install ingest-geoip
-# expect \"permissions\"
-# send \"y\r\"
+# Elevate permissions for Java Runtime to install ingest-geoip when prompted.
+expect \"Continue with installation?\"
+send \"y\r\"
 sudo /usr/share/elasticsearch/bin/elasticsearch-plugin install -s ingest-geoip
 
 
