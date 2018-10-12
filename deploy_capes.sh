@@ -18,23 +18,35 @@ sudo sed -i 's/localpkg_gpgcheck=1/localpkg_gpgcheck=0/' /etc/yum.conf
 clear
 # Create your Gitea passphrase
 echo "Create your Gitea passphrase for the MySQL database and press [Enter]. You will create your Gitea administration credentials after the installation."
-giteapassphrase=$1
+giteapassphrase=$(pwgen 15 1)
 
 # Create your HackMD passphrase
 echo "Create your HackMD passphrase for the MySQL database and press [Enter]. You will create your specific HackMD credentials after the installation."
-hackmdpassphrase=$2
+hackmdpassphrase=$(pwgen 15 1)
 
 # Create your Mattermost passphrase
 echo "Create your Mattermost passphrase for the MySQL database and press [Enter]. You will create your Mattermost administration credentials after the installation."
-mattermostpassphrase=$3
+mattermostpassphrase=$(pwgen 15 1)
 
 # Create your Mumble passphrase
 echo "Create your Mumble SuperUser passphrase and press [Enter]."
-mumblepassphrase=$4
+mumblepassphrase=$(pwgen 15 1)
 
 # Create your CAPES Landing Page passphrase
 echo "Create your CAPES Landing Page passphrase for the account \"operator\" and press [Enter]."
-capespassphrase=$5
+capespassphrase=$(pwgen 15 1)
+
+# Set your mailinabox domain
+mailinaboxdomain=$1
+
+# Set your mailinabox user name
+mailinaboxuser=$2
+
+# Set your mailinabox password
+mailinaboxpw=$3
+
+# Set DNS entry for CAPES box on a MailInABox deployment on the same domain
+curl -X --user $mailinaboxuser:$mailinaboxpw PUT "https://box.$mailinaboxdomain/admin/dns/custom/capes.$mailinaboxdomain"
 
 # Set your IP address as a variable. This is for instructions below.
 IP="$(hostname -i)"
@@ -173,6 +185,7 @@ EOF'
 sudo yum install epel-release mariadb-server firewalld -y
 
 # Configure MariaDB
+mysql_secure_installation --use-default
 sudo systemctl start mariadb.service
 mysql -u root -e "CREATE DATABASE mattermost;"
 mysql -u root -e "GRANT ALL PRIVILEGES ON mattermost.* TO 'mattermost'@'localhost' IDENTIFIED BY '$mattermostpassphrase';"
@@ -554,7 +567,6 @@ echo "In a few seconds we are going to secure your MariaDB configuration. You'll
 sudo sh -c 'echo [mysqld] > /etc/my.cnf.d/bind-address.cnf'
 sudo sh -c 'echo bind-address=127.0.0.1 >> /etc/my.cnf.d/bind-address.cnf'
 sudo systemctl restart mariadb.service
-mysql_secure_installation --use-default
 
 ################################
 ## Copy CAPES Function Check ###
@@ -584,10 +596,11 @@ cat /dev/null > ~/.bash_history && history -c
 ######### Success Page #########
 ################################
 clear
-echo "The Mattermost passphrase for the MariaDB database is: "$mattermostpassphrase
-echo "The Gitea passphrase for the MariaDB database is: "$giteapassphrase
-echo "The HackMD passphrase for the MariaDB database and the service administration account is: "$hackmdpassphrase
-echo "The Mumble SuperUser passphrase is: "$mumblepassphrase
-echo "The CAPES landing passphrase for the account \"operator\" is: "$capespassphrase
-echo "Please see the "Build, Operate, Maintain" documentation for the post-installation steps."
-echo "The CAPES landing page has been successfully deployed. Browse to http://$HOSTNAME (or http://$IP if you don't have DNS set up) to begin using the services."
+sudo touch /capespw
+sudo echo "The Mattermost passphrase for the MariaDB database is: "$mattermostpassphrase >>  /capespw
+sudo echo "The Gitea passphrase for the MariaDB database is: "$giteapassphrase >>  /capespw
+sudo echo "The HackMD passphrase for the MariaDB database and the service administration account is: "$hackmdpassphrase >>  /capespw
+sudo echo "The Mumble SuperUser passphrase is: "$mumblepassphrase >>  /capespw
+sudo echo "The CAPES landing passphrase for the account \"operator\" is: "$capespassphrase >>  /capespw
+sudo echo "Please see the "Build, Operate, Maintain" documentation for the post-installation steps." >>  /capespw
+sudo echo "The CAPES landing page has been successfully deployed. Browse to http://$HOSTNAME (or http://$IP if you don't have DNS set up) to begin using the services." >>  /capespw
