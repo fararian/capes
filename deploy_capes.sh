@@ -18,23 +18,23 @@ sudo sed -i 's/localpkg_gpgcheck=1/localpkg_gpgcheck=0/' /etc/yum.conf
 clear
 # Create your Gitea passphrase
 echo "Create your Gitea passphrase for the MySQL database and press [Enter]. You will create your Gitea administration credentials after the installation."
-read -s giteapassphrase
+giteapassphrase=$1
 
 # Create your HackMD passphrase
 echo "Create your HackMD passphrase for the MySQL database and press [Enter]. You will create your specific HackMD credentials after the installation."
-read -s hackmdpassphrase
+hackmdpassphrase=$2
 
 # Create your Mattermost passphrase
 echo "Create your Mattermost passphrase for the MySQL database and press [Enter]. You will create your Mattermost administration credentials after the installation."
-read -s mattermostpassphrase
+mattermostpassphrase=$3
 
 # Create your Mumble passphrase
 echo "Create your Mumble SuperUser passphrase and press [Enter]."
-read -s mumblepassphrase
+mumblepassphrase=$4
 
 # Create your CAPES Landing Page passphrase
 echo "Create your CAPES Landing Page passphrase for the account \"operator\" and press [Enter]."
-read -s capespassphrase
+capespassphrase=$5
 
 # Set your IP address as a variable. This is for instructions below.
 IP="$(hostname -i)"
@@ -554,7 +554,7 @@ echo "In a few seconds we are going to secure your MariaDB configuration. You'll
 sudo sh -c 'echo [mysqld] > /etc/my.cnf.d/bind-address.cnf'
 sudo sh -c 'echo bind-address=127.0.0.1 >> /etc/my.cnf.d/bind-address.cnf'
 sudo systemctl restart mariadb.service
-mysql_secure_installation
+mysql_secure_installation --use-default
 
 ################################
 ## Copy CAPES Function Check ###
