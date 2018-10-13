@@ -18,42 +18,30 @@ sudo sed -i 's/localpkg_gpgcheck=1/localpkg_gpgcheck=0/' /etc/yum.conf
 clear
 # Create your Gitea passphrase
 echo "Create your Gitea passphrase for the MySQL database and press [Enter]. You will create your Gitea administration credentials after the installation."
-giteapassphrase=$(pwgen 15 1)
+giteapassphrase=$(pwgen 28 1)
 
 # Create your HackMD passphrase
 echo "Create your HackMD passphrase for the MySQL database and press [Enter]. You will create your specific HackMD credentials after the installation."
-hackmdpassphrase=$(pwgen 15 1)
+hackmdpassphrase=$(pwgen 28 1)
 
 # Create your Mattermost passphrase
 echo "Create your Mattermost passphrase for the MySQL database and press [Enter]. You will create your Mattermost administration credentials after the installation."
-mattermostpassphrase=$(pwgen 15 1)
+mattermostpassphrase=$(pwgen 28 1)
 
 # Create your Mumble passphrase
 echo "Create your Mumble SuperUser passphrase and press [Enter]."
-mumblepassphrase=$(pwgen 15 1)
+mumblepassphrase=$(pwgen 28 1)
 
 # Create your CAPES Landing Page passphrase
 echo "Create your CAPES Landing Page passphrase for the account \"operator\" and press [Enter]."
-capespassphrase=$(pwgen 15 1)
+capespassphrase=$(pwgen 28 1)
 
 # Creat your mariaDB root password
-echo "Creating your mariaDB password"
-mariaDBpw=$(pwgen 15 1)
+echo "Creating your mariaDB passphrase."
+mariadbpassphrase=$(pwgen 28 1)
 
-# Set your mailinabox domain
-# mailinaboxdomain=$1
-
-# Set your mailinabox user name
-# mailinaboxuser=$2
-
-# Set your mailinabox password
-# mailinaboxpw=$3
-
-# Set DNS entry for CAPES box on a MailInABox deployment on the same domain
-# curl -X --user $mailinaboxuser:$mailinaboxpw PUT "https://box.$mailinaboxdomain/admin/dns/custom/capes.$mailinaboxdomain"
-
-# Set your IP address as a variable. This is for instructions below.
-IP="$(hostname -i)"
+# Set your hostname address as a variable. This is for instructions below.
+HOSTNAME="$(hostname -f)"
 
 ################################
 ######## Configure NTP #########
@@ -189,7 +177,7 @@ EOF'
 sudo yum install epel-release mariadb-server firewalld -y
 
 # Configure MariaDB
-sudo bash ./mysql_secure.sh '$mariaDBpw'
+sudo bash ./mysql_secure.sh '$mariadbpassphrase'
 sudo systemctl start mariadb.service
 mysql -u root -e "CREATE DATABASE mattermost;"
 mysql -u root -e "GRANT ALL PRIVILEGES ON mattermost.* TO 'mattermost'@'localhost' IDENTIFIED BY '$mattermostpassphrase';"
@@ -462,7 +450,7 @@ sudo sed -i '43 a \\tauth_basic "CAPES Login";' /etc/nginx/nginx.conf
 sudo sed -i '44 a \\tauth_basic_user_file /etc/nginx/.htpasswd;' /etc/nginx/nginx.conf
 
 # Update the landing page index file
-sed -i "s/your-ip/$IP/" landing_page/index.html
+sed -i "s/your-ip/$HOSTNAME/" landing_page/index.html
 
 # Move landing page framework into Nginx's working directory
 sudo cp -r landing_page/* /usr/share/nginx/html/
@@ -493,9 +481,9 @@ sudo cp beats/filebeat.yml /etc/filebeat/filebeat.yml
 sudo /usr/share/elasticsearch/bin/elasticsearch-plugin install ingest-user-agent
 
 # Elevate permissions for Java Runtime to install ingest-geoip when prompted.
-expect \"Continue with installation?\"
-send \"y\r\"
-sudo /usr/share/elasticsearch/bin/elasticsearch-plugin install -s ingest-geoip
+# expect \"Continue with installation?\"
+# send \"y\r\"
+# sudo /usr/share/elasticsearch/bin/elasticsearch-plugin install -s ingest-geoip
 
 
 ################################
@@ -573,7 +561,7 @@ sudo /opt/murmur/murmur.x86 -ini /etc/murmur.ini -supw $mumblepassphrase
 ################################
 clear
 echo "In a few seconds we are going to secure your MariaDB configuration. You'll be asked for your MariaDB root passphrase (which hasn't been set), you'll set the MariaDB root passphrase and then be asked to confirm some security configurations."
-echo $mariaDBpw
+echo $mariadbpassphrase
 sudo sh -c 'echo [mysqld] > /etc/my.cnf.d/bind-address.cnf'
 sudo sh -c 'echo bind-address=127.0.0.1 >> /etc/my.cnf.d/bind-address.cnf'
 sudo systemctl restart mariadb.service
@@ -613,5 +601,5 @@ sudo echo "\n The HackMD passphrase for the MariaDB database and the service adm
 sudo echo "\n The Mumble SuperUser passphrase is: "$mumblepassphrase >>  /capespw
 sudo echo "\n The CAPES landing passphrase for the account \"operator\" is: "$capespassphrase >>  /capespw
 sudo echo "\n Please see the "Build, Operate, Maintain" documentation for the post-installation steps." >>  /capespw
-sudo echo "\n The CAPES landing page has been successfully deployed. Browse to http://$HOSTNAME (or http://$IP if you don't have DNS set up) to begin using the services." >>  /capespw
-sudo echo "\n The mariaDB password is: "$mariaDBpw >> /capespw
+sudo echo "\n The CAPES landing page has been successfully deployed. Browse to http://$HOSTNAME (or http://$HOSTNAME if you don't have DNS set up) to begin using the services." >>  /capespw
+sudo echo "\n The mariaDB password is: "$mariadbpassphrase >> /capespw
